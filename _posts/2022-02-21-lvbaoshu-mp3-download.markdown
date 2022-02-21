@@ -13,14 +13,14 @@
 抓包发现下载链接类似于这种：
 
 ```shell
-https://pc-media.xdfsjj.com/2b0b5c7efef6e121c9e90e7a4683a9ba/62135128/tm7345927_aa95619311af1ab3f8d98cca670abefe52bb2f7a.mp3
+https://手动打码.jpg.com/2b0b5c7efef6e121c9e90e7a4683a9ba/62135128/tm7345927_aa95619311af1ab3f8d98cca670abefe52bb2f7a.mp3
 ```
-随手重放发现能够下载，于是好整以暇地找了全部 48 个下载链接下过来了。当然直接浏览器打开会报 403 forbidden，需要手动设置 header （未 check 服务器能接受的最少 header 改动数量，抓包看见啥就全堆一起了）
+随手重放发现能够下载，于是好整以暇地找了全部 48 个下载链接下过来了。当然直接浏览器打开会报 `403 forbidden`，需要手动设置 `header` （未确认服务器能接受的最少 `header` 改动数量，抓包看见啥就全堆一起了）
 
 ```python
 headers = [
-    "Host: pc-media.xdfsjj.com",
-    "Cookie: _yttoken_=yvwo3voz75knhygy; _ytuserid_=112909351",
+    "Host: 手动打码.jpg.com",
+    "Cookie: _yttoken_=手动打码.jpg; _ytuserid_=手动打码.jpg",
     'Sec-Ch-Ua: "(Not(A:Brand";v="8", "Chromium";v="98"',
     "Sec-Ch-Ua-Mobile: ?0",
     'Sec-Ch-Ua-Platform: "Windows"',
@@ -28,7 +28,7 @@ headers = [
     "Sec-Fetch-Site: same-site",
     "Sec-Fetch-Mode: no-cors",
     "Sec-Fetch-Dest: audio",
-    "Referer: https://dogwood.xdfsjj.com/",
+    "Referer: https://手动打码.jpg.com/",
     "Range: bytes=0-"
 ]
 ```
@@ -44,7 +44,7 @@ headers = [
 
 ```shell
 POST /resourceService/getLinkUrl.do HTTP/2
-Host: dogwood.xdfsjj.com
+Host: 手动打码.jpg.com
 Cookie: _yttoken_=手动打码.jpg; _ytuserid_=手动打码.jpg JSESSIONID=手动打码.jpg
 Content-Length: 146
 Sec-Ch-Ua: "(Not(A:Brand";v="8", "Chromium";v="98"
@@ -53,11 +53,11 @@ Content-Type: application/x-www-form-urlencoded
 Sec-Ch-Ua-Mobile: ?0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.82 Safari/537.36
 Sec-Ch-Ua-Platform: "Windows"
-Origin: https://dogwood.xdfsjj.com
+Origin: https://手动打码.jpg.com
 Sec-Fetch-Site: same-origin
 Sec-Fetch-Mode: cors
 Sec-Fetch-Dest: empty
-Referer: https://dogwood.xdfsjj.com/pc/audioDetail.html?id=45208&pcrId=9428294&resId=11190133&resSign=f451f1&type=14
+Referer: https://手动打码.jpg.com/pc/audioDetail.html?id=45208&pcrId=9428294&resId=11190133&resSign=f451f1&type=14
 Accept-Encoding: gzip, deflate
 Accept-Language: zh-CN,zh;q=0.9
 
@@ -75,7 +75,7 @@ Access-Control-Allow-Methods: GET,POST,OPTIONS
 Access-Control-Allow-Headers: X-Requested-With,Content-Type,Accept,Origin,If-Modified-Since
 Access-Control-Max-Age: 3600
 Access-Control-Allow-Credentials: true
-Access-Control-Allow-Origin: https://dogwood.xdfsjj.com
+Access-Control-Allow-Origin: https://手动打码.jpg.com
 
 {"encrypted":true,"encryptedData":"ubY4o0kjceB/yI1q1EO41+lsrherfc+7ZYtHOnPFdwHdefaai23GLHoMFY8aBNf7JE8JjtMIQrT+\r\noKB85UGwOfpnqrCVkk8nnkpLjQ0j8iwkBidMBIkeE/bzJDDam8f46a5nuhKcGx20zn93nzqh9q6g\r\nBnjyFKxLbG1NmaP5xlmzExj5vaLqlUUwH2r2eqY4c5IPmqyVgewijXZ6UeOcr4AE+/EX6enJBYuY\r\nicl8EvN+5P5Z75XQWdaGylm7EYg1gfCVUdsi7xTHFK4wvU2sWj8u/Nx7akWxpKlFEKlRm3t5zmn7\r\nSoSZU7LM04jQ8Ghp\r\n","success":true}
 ```
@@ -101,12 +101,12 @@ if (n.success && n.encrypted && n.encryptedData) {
 
 ```shell
 {
-    'host': '183.220.22.215', 
+    'host': '手动打码.jpg', 
     'httpDns': False, 
     'mediaType': 3, 
     'needSignPro': False, 
     'resId': 11190133, 
-    'url': 'https://pc-media.xdfsjj.com/0f201351c3631b74a485ac9ef2e145bf/621381C0/tm7345927_848f37af57d21f3e16a194d18463b2907b491860.mp3'
+    'url': 'https://手动打码.jpg.com/0f201351c3631b74a485ac9ef2e145bf/621381C0/tm7345927_848f37af57d21f3e16a194d18463b2907b491860.mp3'
 }
 ```
 
@@ -119,7 +119,7 @@ if (n.success && n.encrypted && n.encryptedData) {
 
 ##### 2.2 来自 server 的参数
 
-因为是无聊的 `copy & search` 就不写详细过程了。用户相关信息由对 `loginService/userInfo.do` 等的响应中指定，音频资源文件相关如的 `resId, resSign, type` 等由对 `bookService/detail.do` 的响应中指定。上述解密后的音频文件相关信息如下：
+因为是无聊的 `copy & search` 就不写详细过程了。用户相关信息由对 `loginService/userInfo.do` 等的响应中指定，音频资源文件相关如的 `resId, resSign, type` 等由对 `bookService/detail.do` 的响应中指定。上述音频文件相关信息如下：
 
 ```json
 {
@@ -224,6 +224,6 @@ function Er(e, t) {
 
 然而，为什么要把密钥明晃晃地放在代码里呢……
 
-以及新东方和书链合作整了个这套系统，书链的东西大概也能用这一套流程。~~自动化代码嘛咕咕咕~~
+以及出版商和书链合作整了个这套系统，书链的东西大概也能用这一套流程。~~自动化代码嘛咕咕咕~~
 
 <br>
