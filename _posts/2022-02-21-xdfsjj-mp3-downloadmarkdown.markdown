@@ -99,7 +99,7 @@ if (n.success && n.encrypted && n.encryptedData) {
 
 搜了一下这个 `key`，找到了一个现成的[解密代码](https://www.52pojie.cn/thread-1424921-1-1.html)，直接照搬得到了上一节中我们提到的 `url`:
 
-```json
+```shell
 {
     'host': '183.220.22.215', 
     'httpDns': False, 
