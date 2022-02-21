@@ -193,7 +193,34 @@ function Er(e, t) {
 
 代码逻辑存在于两个 `js` 文件中。其中对 `server` 返回信息进行处理的逻辑位于 `index.1647aa023bcaf3996f5a.js` 中，对客户端生成参数的处理逻辑位于 `vendor.b3cabdc0a79b34b906c0.js` 中。两个代码文件均经过混淆（应该不是程序员手动写成这样的吧……）；比起上文生成 `nonce` 等的代码，`index.1647aa023bcaf3996f5a.js` 中的这部分代码看上去混淆得更为明显：
 
-![](../images/20220221-obfuscate.png)
+```javascript
+...
+, Qr = "/"
+, Dr = "/personCenter.html"
+, Lr = "/login.html"
+, Mr = "/audioDetail.html"
+, Yr = "/bookList.html"
+, Vr = "/courseList.html"
+, Pr = "/courseDetail.html"
+, Jr = "/bookDetail.html"
+, Kr = "/resourceDownload.html"
+, Gr = "/resourceImg.html"
+, Hr = "/resourceRichText.html"
+, Fr = "/livePlayback.html"
+, Zr = "/videoDetail.html"
+, Xr = "/liveDetail.html"
+, qr = "/searchList.html"
+, Wr = "/home.html"
+, zr = "/second.html"
+, _r = new Set([Qr, Wr, qr, zr])
+, $r = [{
+    path: Qr,
+    component: Ur,
+    isExact: !0,
+    title: "主页"
+}
+...
+```
 
 然而，为什么要把密钥明晃晃地放在代码里呢……
 
