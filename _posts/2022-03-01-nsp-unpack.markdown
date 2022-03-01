@@ -70,6 +70,6 @@ GAME.cpk  MOVIE.cpk  SOUND.cpk  STORY.cpk  SYSTEM.cpk
 
 因为觉得声音文件珍贵异常（好吧作为声优劳动成果确实是）而手动 check 了对应关系的我好憨。
 
-通过进一步地[查询](https://bbs.pediy.com/thread-259962-1.htm)得知，对主机游戏的逆向难度远大于对 PC 游戏大的逆向。那么，薄樱鬼的 flag 又重新插了起来。
+通过进一步地[查询](https://bbs.pediy.com/thread-259962-1.htm)得知，对主机游戏的逆向难度远大于对 PC 游戏的逆向。那么，薄樱鬼的 flag 又重新插了起来。
 
 <br>
