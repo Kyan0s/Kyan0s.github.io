@@ -66,5 +66,7 @@ windbg 在内存中搜索的命令为 `s`，且该命令必须指定待搜索的
 
 这修改也如实地反应在了屏幕上。总之纪念一下：
 
-![image](/assets/img/serifu-change.jpg)
+![image](https://raw.githubusercontent.com/Kyan0s/Kyan0s.github.io/main/assets/img/serifu-change.png)
+
+
 
