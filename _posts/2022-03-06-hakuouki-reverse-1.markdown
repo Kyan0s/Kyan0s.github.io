@@ -33,15 +33,14 @@ snprintf (ebx, size, "/voice/%06d.hca", esi);
 
 ```goland
 type HCAName struct {
-	Six   uint32   // value = 6
-	Four  uint32   // value = 4
+    Six   uint32   // value = 6
+    Four  uint32   // value = 4
     Index uint32   // in hex
 }
 ```
-如声音文件 `096014.hca`，其对应的数据结构为：
+如声音文件 `096013.hca`，其对应的数据结构为：
 
-
-
+![](https://raw.githubusercontent.com/Kyan0s/Kyan0s.github.io/main/assets/img/hca-data-structure.png)
 
 <br>
 
