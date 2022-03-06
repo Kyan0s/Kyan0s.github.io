@@ -46,6 +46,8 @@ type HCAName struct {
 
 ![](https://raw.githubusercontent.com/Kyan0s/Kyan0s.github.io/main/assets/img/hca-data-structure.png)
 
+<center>图一</center>
+
 <br>
 
 #### 1.2 寻找写入该数据结构的函数
@@ -92,8 +94,39 @@ HakuokiWin!CAsyncReader::GetPin+0x16534:
 17 e Disable Clear  00eaf5b4     0001 (0001)  0:**** HakuokiWin!CAsyncReader::GetPin+0x167e4
 ```
 
-这样尝试几次后一个有意思的现象发生了：会连续触发断点 15，且每次断点 15 触发后，`eax` 寄存器中均存放了下一块将要写入的内存区域地址；该内存区域通常为 `0x100` 字节，且在写入之前会通过 `memset` 先将该区域清空。某次写入后其对应内存区域如下：
+这样尝试几次后一个有意思的现象发生了：会连续触发断点 15，且每次断点 15 触发后，`eax` 寄存器中均存放了下一块将要写入的内存区域地址；该内存区域通常为 `0x100` 字节，且在写入之前会通过 `memset` 先将该区域清空。某次写入后对应内存区域如下：
 
+![](https://raw.githubusercontent.com/Kyan0s/Kyan0s.github.io/main/assets/img/hitotsu-write.png)
+
+<center>图二</center>
+
+并且，对每一内存区域的写入不是一步即可的。下图中，正在写入的内存区域起始位置为 `0x1cfb6420`，下一块内存区域（待清空）起始位置为 `0x1cfb6520`。在本块内存区域中，先写入了块结尾处的 `Batch_item`，然后才写入了红色标识的 `20 62 fb 1c` 等。
+
+![](https://raw.githubusercontent.com/Kyan0s/Kyan0s.github.io/main/assets/img/toaru_write.png)
+
+<center>图三</center>
+
+ 通过对比图一图二，可以推测 `HCAName` 的前两个固定值字段实际位于块头部分。经过虽然谈不上漫长却依旧非常痛苦的调试之后，确认了写入 `HCAName` 的函数为 `0x00458ce0`。事实上还有复数个函数能够写入 `Batch_item` 块，这些函数所对应的块头也各个不同；但大体上这些函数都包括如下逻辑：
+ 
+ + 通过调用 0x0043f5f0 写入块尾 `Batch_item` 字符串
+ + 通过调用 0x004590dc 写入块头第一字节
+ + 通过调用 0x004590e6 写入块头第二子节
+ + 对块其他部分的处理
+
+函数 `0x00458ce0` 写入块头前两字节代码如下。之所以特意展示这个其实是想发一句牢骚：如果能准确定位，那看到这种代码后甚至不用细究被调函数实现细节就能猜测出其大概的功能；然而如果想要做到准确定位，我目前还不知道有什么类似于上文 `snprintf` 这种的取巧方法；这篇文章中所讲到的方法，有一个算一个都是体力活啊 (Ｔ▽Ｔ)。
+ 
+ ```assembly
+0x004590d7      push    6          ; 6
+0x004590d9      push    ebx
+0x004590da      mov     esi, dword [eax]
+0x004590dc      call    fcn.0043f850
+0x004590e1      push    4          ; 4
+0x004590e3      push    0
+0x004590e5      push    ebx
+0x004590e6      call    fcn.0043f870
+ ```
+
+调用这些写块函数的分发函数似乎应该是后续逆向文件结构的重中之重。这些 `switch case` 看着实在是太亲切了：
 
 
 
