@@ -98,20 +98,24 @@ HakuokiWin!CAsyncReader::GetPin+0x16534:
 
 <center>图二</center>
 
+<br>
+
 并且，对每一内存区域的写入不是一步即可的。下图中，正在写入的内存区域起始位置为 `0x1cfb6420`，下一块内存区域（待清空）起始位置为 `0x1cfb6520`。在本块内存区域中，先写入了块结尾处的 `Batch_item`，然后才写入了红色标识的 `20 62 fb 1c` 等。
 
 ![](https://raw.githubusercontent.com/Kyan0s/Kyan0s.github.io/main/assets/img/toaru_write.png)
 
 <center>图三</center>
 
- 通过对比图一图二，可以推测 `HCAName` 的前两个固定值字段实际位于块头部分。经过虽然谈不上漫长却依旧非常痛苦的调试之后，确认了写入 `HCAName` 的函数为 `0x00458ce0`。事实上还有复数个函数能够写入 `Batch_item` 块，这些函数所对应的块头也各个不同；但大体上这些函数都包括如下逻辑：
+<br>
+
+ 通过对比图一图二，可以推测 `HCAName` 的前两个固定值字段实际位于块头部分。经过虽然谈不上漫长却依旧非常痛苦的调试之后，确认了写入 `HCAName` 的函数为 `0x00458ce0`(`HakuokiWin!CAsyncReader::GetPin+0x2fdb7`)。事实上还有复数个函数能够写入 `Batch_item` 块，这些函数所对应的块头也各个不同；但大体上这些函数都包括如下逻辑：
  
  + 通过调用 0x0043f5f0 写入块尾 `Batch_item` 字符串
  + 通过调用 0x004590dc 写入块头第一字节
  + 通过调用 0x004590e6 写入块头第二子节
  + 对块其他部分的处理
 
-函数 `0x00458ce0` 写入块头前两字节代码如下。之所以特意展示这个其实是想发一句牢骚：如果能准确定位，那看到这种代码后甚至不用细究被调函数实现细节就能猜测出其大概的功能；然而如果想要做到准确定位，我目前还不知道有什么类似于上文 `snprintf` 这种的取巧方法；这篇文章中所讲到的方法，有一个算一个都是体力活啊 (Ｔ▽Ｔ)。
+函数 `0x00458ce0` 写入块头前两字节代码如下：
  
  ```assembly
 0x004590d7      push    6          ; 6
@@ -124,11 +128,23 @@ HakuokiWin!CAsyncReader::GetPin+0x16534:
 0x004590e6      call    fcn.0043f870
  ```
 
-调用这些写块函数的分发函数似乎应该是后续逆向文件结构的重中之重。这些 `switch case` 看着实在是太亲切了，仿佛灯塔本塔兴高采烈地告诉你这次成功没有迷路。
+调用这些写块函数的分发函数（`0x4d8420，HakuokiWin!CAsyncReader::GetPinCount+0x1978`）似乎应该是后续逆向文件结构的重中之重。
 
 ![](https://raw.githubusercontent.com/Kyan0s/Kyan0s.github.io/main/assets/img/switch-func.png)
 
 <center>图四</center>
+
+<br>
+
+顺便记录一下 `main` 到分发函数的调用栈：
+
++ 0x004d9e40
++ 0x004d9d40
++ 0x004ca830
++ 0x004069e0 (call eax, from block 0x00406a52)
++ 0x00406a9b in 0x004069e0 call 0x004069e0
++ 0x004c5260
++ 0x004c5ae0  main
 
 <br>
 
@@ -167,7 +183,7 @@ fcn.0050ab40 (int32_t arg_4h, HINSTANCE arg_8h);
 
 虽然还没有对分发函数进行逆向，但看到上溯其调用栈时能够一路回溯到 `main` 函数时还有点安心：大概是觉得只需要花时间逆出函数逻辑即可，而不需要再像没头苍蝇一般到处乱窜吧。下集预告自然是带解析文件的文件结构说明；当然如果被证实逆向得到的结果与[现有资料](https://github.com/u3shit/neptools/blob/master/doc/formats/stcm.md)完全一致，那这一系列将 ~~尴尬地~~ 宣布在此告结。
 
-虽然说很久前就听前辈提到逆向本质体力活，但正因为劳动的不可避免，所谓技巧甚至熟能生巧才显得弥足珍贵。之后还是应该勤快逆向。
+虽然说很久前就听前辈提到逆向本质体力活，但正因为劳动的不可避免，所谓技巧甚至熟能生巧才显得弥足珍贵。之后还是应该勤快逆向吖。
 
 <br>
 
