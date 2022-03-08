@@ -136,15 +136,15 @@ HakuokiWin!CAsyncReader::GetPin+0x16534:
 
 <br>
 
-顺便记录一下 `main` 到分发函数的调用栈：
+顺便记录一下 `main` 到分发函数的调用栈（以 `HakuokiWin+0x8d60` 为 `#00`）：
 
-+ 0x004d9e40
-+ 0x004d9d40
-+ 0x004ca830
-+ 0x004069e0 (call eax, from block 0x00406a52)
-+ 0x00406a9b in 0x004069e0 call 0x004069e0
-+ 0x004c5260
-+ 0x004c5ae0  main
++ [`#06`] 0x004d9e40
++ [`#07`] 0x004d9d40
++ [`#08`] 0x004ca830
++ [`#09`] 0x004069e0 (call eax, from block 0x00406a52)
++ [`#10`] 0x00406a9b in 0x004069e0 call 0x004069e0
++ [`#11`] 0x004c5260
++ [`#12`] 0x004c5ae0  main
 
 <br>
 
