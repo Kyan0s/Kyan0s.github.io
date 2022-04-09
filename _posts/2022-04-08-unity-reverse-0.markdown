@@ -200,7 +200,7 @@ if "ScriptMethod" in data and "ScriptMethod" in processFields:
 
 根据 [浅谈逆向 Unity WebGL Il2Cpp 中 WebAssembly 函数的方法](https://www.cnblogs.com/algonote/p/15596459.html)，出于安全考虑 wasm 通过形如 `dynCall_iiii` 的函数来实现动态调用：对于具有同样参数数量及类型的函数，通过查询其在该特征函数表中的编号（即上文提到的 `Address`）来获取其地址并最终进行调用。作者同样给出了自动进行地址修复的脚本 `ghidra_wasm.py`。
 
-然而执行脚本该脚本所依赖的、ghidra-wasm-plugin 插件中自带的脚本 `analyze_dyncalls.py` 时，出现报错：
+然而执行脚本该脚本所依赖的、ghidra-wasm-plugin 插件中自带的脚本 `analyze_dyncalls.py` 时，出现异常：
 
 ```python
 def renameDyncalls(calltype):
@@ -282,7 +282,7 @@ void Platformer.Gameplay.EnemyDeath$$Execute(int param1,undefined4 param2)
   return;
 }
 ```
-p{white-space:pre-wrap;}虽然看上去有点好乱，但从对 `PlayOneShot` 调用来看修复应该无误。
+虽然看上去有点好乱，但从对 `PlayOneShot` 的调用来看修复应该无误。
 
 <br>
 
