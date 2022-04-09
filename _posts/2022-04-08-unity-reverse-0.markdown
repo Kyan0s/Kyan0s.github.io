@@ -282,7 +282,7 @@ void Platformer.Gameplay.EnemyDeath$$Execute(int param1,undefined4 param2)
   return;
 }
 ```
-虽然看上去有点好乱，但从对 `PlayOneShot` 的调用来看修复应该无误。
+虽然看上去有点乱，但从对 `PlayOneShot` 的调用来看修复应该无误。
 
 <br>
 
