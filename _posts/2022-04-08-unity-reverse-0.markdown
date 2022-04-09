@@ -1,18 +1,18 @@
-## Unity 逆向学习 - 0
+## Unity 逆向学习记录 - 0
 
 <br>
 
 ### 0. 一些废话
 
-虽然一直叫嚣着 “我要学游戏开发” 什么的，然而拜拖延症所赐也就是叫嚣罢了。然而万万没想到有朝一日我会 ~~因为生活所迫而~~ 真的去学 unity ~~的皮毛~~。好在时间还算勉强充裕，因此决定老老实实来按照自己定的技术路线来搞一下。
+虽然一直叫嚣着 “我要学游戏开发” 什么的，然而拜拖延症所赐也就是叫嚣罢了。万万没想到生活所迫这玩意重新搞起来了 doge
 
 <br>
 
 ### 1. 食材
 
-今天的目标是分析 assets 相关文件。之前都是直奔 Assembly-CSharp.dll 去的；但今天我看到一篇 [CTF 解析](https://www.cnblogs.com/algonote/p/15589898.html) ，这才意识到首先应该厘清 “什么对象绑定了什么行为”。
+今天的目标是分析 assets 相关文件。之前都是直奔 Assembly-CSharp.dll 去的，现在想来这也大抵没错。但教程中提到的 WebGL 编译使用了 il2cpp，所以需要先从还原 Assembly-CSharp.dll （或者说至少拿到一个函数声明表？）开始。
 
-虽然现在看来我应该选一个 Hello World 来做作为第一个分析的对象，白天的我还是一往无前地随便从 Unity Learn 上随便抓了一个 [2D Platformer](https://assetstore.unity.com/packages/templates/platformer-microgame-151055) 资源文件就开始尝试打包。以及萌新感慨：原来打包真的会卡死啊。
+食材为从 Unity Learn 上随便抓的一个游戏 [2D Platformer](https://assetstore.unity.com/packages/templates/platformer-microgame-151055) 。如果时光能倒流，我选择以分析 Hello World 开始。 QAQ
 
 教程中该游戏大概长这样：
 
@@ -45,61 +45,23 @@
 └── index.html
 ```
 
-分析目标是 `WebGL Builds.data`。因为 AssetStudio 是 Windows 限定而我又懒得拖着台式机干活，本文所使用的分析工具为由 Python 实现的 `UnityPy`。
+根据粗浅搜索，剥离（我个人理解）的二进制文件为 `.wasm`，而函数名等需要从作为资源文件的 `.data` 中摘出。结合 `.wasm` 与从资源文件中提取出的 `global-metadata.dat` ，Il2CppDumper 能够还原函数声明等，并据此辅助对 `.wasm` 的逆向。
+
+AssetStudio 能够完成提取 `global-metadata.dat` 这一工作。但一开始我只知道要用这个软件却不知道应具体使用其何种功能，于是先折腾了下其在 MacOS 上的平替：由 Python 实现的 `UnityPy`。
 
 <br>
 
-### 2. 围观资源类型
+### 2. 围观 UnityPy
 
-首先看了下资源文件中都包含哪些类型的 “资源”：
+虽然目前来看 UnityPy 相比 AssetStudio 还是 Bug 多了一点，但清楚的文档和使用示例还是蛮适合纯零基础小白入坑。
+
+首先围观了下资源文件中都包含哪些类型的资源：
 
 ```python
 {
     'Animator', 
     'RectTransform', 
-    'Canvas', 
-    'AudioListener', 
-    'GraphicsSettings', 
-    'GameObject', 
-    'Tilemap', 
-    'BuildSettings', 
-    'ComputeShader', 
-    'AudioManager', 
-    'QualitySettings', 
-    'InputManager', 
-    'Physics2DSettings',
-    'MeshFilter', 
-    'LightingSettings', 
-    'SortingGroup', 
-    'TextAsset', 
-    'StreamingManager', 
-    'BoxCollider2D', 
-    'Rigidbody2D', 
-    'PlayerSettings', 
-    'TagManager', 
-    'ScriptMapper', 
-    'CapsuleCollider2D', 
-    'Sprite', 
-    'NavMeshProjectSettings', 
-    'UnityConnectSettings', 
-    'Camera', 
-    'NavMeshSettings', 
-    'RuntimeInitializeOnLoadManager', 
-    'PhysicsManager', 
-    'VFXManager', 
-    'RenderSettings', 
-    'TilemapCollider2D', 
-    'Font', 
-    'ResourceManager', 
-    'PreloadData', 
-    'TilemapRenderer', 
-    'AudioClip', 
-    'TimeManager', 
-    'AnimationClip', 
-    'PolygonCollider2D', 
-    'LightmapSettings', 
-    'CanvasRenderer', 
-    'Texture2D', 
+    ...,
     'MonoBehaviour', 
     'DelayedCallManager', 
     'Material', 
@@ -115,13 +77,7 @@
 }
 ```
 
-根据之前粗浅的学习 + xjb 猜，觉得 `MonoScript, MonoBehaviour, ScriptMapper, DelayedCallManager, MonoManager` 这些应该比较重要；在各式解包文章中经常被提到的似乎是前两个，于是今天也只先围观了前两种。
-
-<br>
-
-### 3. 围观 MonoBehaviour
-
-魔改 UnityPy 提供的 [extractor.py](https://github.com/K0lb3/UnityPy/blob/master/UnityPy/tools/extractor.py) 脚本，记录 MonoBehaviour 的所在二进制文件名等信息：
+在各式解包文章中经常被提到的似乎是 `MonoScript` 和 `MonoBehaviour`，后续也着重分析了这两种类型。通过魔改 UnityPy 提供的 [extractor.py](https://github.com/K0lb3/UnityPy/blob/master/UnityPy/tools/extractor.py) 脚本，记录 `MonoBehaviour` 及 `MonoScript` 的相关信息：
 
 ```json
 {
@@ -134,7 +90,7 @@
 }
 ```
 
-然而并不是所有的 MonoBehaviour 都能 dump 出相关信息（不知道如果使用 AssetStudio 能否规避掉这一问题。）对于未能 dump 信息的 MonoBehaviour，其 raw_data 被保存为 `<MonoBehaviour.name>.bin` 文件。结合游戏截图和文件名推测，`.bin` 文件所代表的似乎都是非库函数（所以更为重要？）的 MonoBehaviour：
+然而并不是所有的 `MonoBehaviour` 都能 dump 出相关信息。下述 `.bin` 文件即为分析失败的对象；结合游戏截图和文件名推测，分析失败的对象似乎反而更为重要：
 
 ```shell
 192:MonoBehaviour Kyan0s$ ls | cat
@@ -163,37 +119,12 @@ tree.bin
 ```
 <br>
 
-**2022-04-09 更新**
+### 3. 分析的正途
 
-用 AssetStudio 看了下，所谓开幕雷击：
+上文分析失败的 `MonoBehaviour` 被 AssetStudio 好好地分析出来了，虽然乍一看可读性不如  UnityPy：
 
 ![](https://raw.githubusercontent.com/Kyan0s/Kyan0s.github.io/main/assets/img/assets-cloud.png)
 
-<br>
-
-### 3. 围观 MonoScript
-
-同样 dump。有趣的是这里未发现 dump 失败的问题。
-
-```json
-{
-    "m_AssemblyName": "UnityEngine.TestRunner.dll",
-    "m_ClassName": "AssemblyLoadProxy",
-    "m_ExecutionOrder": 0,
-    "m_Namespace": "UnityEngine.TestTools.Utils",
-    "platform": "WebGL",
-    "name": "AssemblyLoadProxy"
-}
-```
+但这不妨碍通过 `File -> Extract file` 提取得到 `global-metadata.dat`。然后倒入 `.wasm`，加以搅拌后喂给 Il2CppDumper，于是期望发生的一切都发生了（？）。新版本的 Il2CppDumper 会将函数声明等保存为 json 文件，然后提供了在 IDA / Ghidra 等工具中使用该 json 文件的脚本。~~真的好好奇这些脚本如何工作，拥有相似特征的函数万一很多怎么办？总之之后先上手试试。~~
 
 <br>
-
-### 4. 思考 + TODO
-
-+ ~~确认下 AssetStudio 是否更加好用。如若果真如此，搞清楚为什么对方更好用应该需要对 assets 文件格式的深入学习吧 ~~
-+ MonoBehaviour 和 MonoScript 区别在哪里？目前的理解是 MonoBehaviour 需要绑定某一对象，不过这个不一定对。~~等等我为啥不打开源文件去 check~~
-+ 学习如何找到 assets 中函数名与 `wasm` 中函数体的映射。粗浅瞅了一眼感觉会花一些功夫。
-
-<br>
-
-
