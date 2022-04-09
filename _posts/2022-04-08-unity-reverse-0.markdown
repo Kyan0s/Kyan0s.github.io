@@ -154,6 +154,8 @@ internal class Level2Map // TypeDefIndex: 33
 
 ![](https://raw.githubusercontent.com/Kyan0s/Kyan0s.github.io/main/assets/img/ghidra_wrong_wasm_func.png)
 
+<br>
+
 心情平复下来后，由于非常好奇这些脚本究竟如何工作（毕竟如果将函数参数和返回类型作为特征一定会找到很多相似函数），去围观了下脚本源代码：
 
 ```python
