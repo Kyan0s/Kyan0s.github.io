@@ -162,6 +162,12 @@ plant.bin
 tree.bin
 ```
 
+** 2022-04-09 更新 **
+
+用 AssetStudio 看了下，所谓开幕雷击：
+
+![](https://raw.githubusercontent.com/Kyan0s/Kyan0s.github.io/main/assets/img/assets-cloud.png)
+
 <br>
 
 ### 3. 围观 MonoScript
@@ -183,7 +189,7 @@ tree.bin
 
 ### 4. 思考 + TODO
 
-+ 确认下 AssetStudio 是否更加好用。~~估计是~~ 如若果真如此，搞清楚为什么 UnityPy ~~不那么好用 QAQ~~ 应该需要对 assets 文件格式的深入学习。
++ ~~确认下 AssetStudio 是否更加好用。如若果真如此，搞清楚为什么对方更好用应该需要对 assets 文件格式的深入学习吧 ~~
 + MonoBehaviour 和 MonoScript 区别在哪里？目前的理解是 MonoBehaviour 需要绑定某一对象，不过这个不一定对。~~等等我为啥不打开源文件去 check~~
 + 学习如何找到 assets 中函数名与 `wasm` 中函数体的映射。粗浅瞅了一眼感觉会花一些功夫。
 
