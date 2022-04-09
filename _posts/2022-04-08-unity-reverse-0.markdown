@@ -196,9 +196,93 @@ if "ScriptMethod" in data and "ScriptMethod" in processFields:
 
 <br>
 
-### 5. 地址修复（TODO）
+### 5. 地址修复
 
-首先学习这篇 [浅谈逆向 Unity WebGL Il2Cpp 中 WebAssembly 函数的方法](https://www.cnblogs.com/algonote/p/15596459.html)
+根据 [浅谈逆向 Unity WebGL Il2Cpp 中 WebAssembly 函数的方法](https://www.cnblogs.com/algonote/p/15596459.html)，出于安全考虑 wasm 通过形如 `dynCall_iiii` 的函数来实现动态调用：对于具有同样参数数量及类型的函数，通过查询其在该特征函数表中的编号（即上文提到的 `Address`）来获取其地址并最终进行调用。作者同样给出了自动进行地址修复的脚本 `ghidra_wasm.py`。
+
+然而执行脚本该脚本所依赖的、ghidra-wasm-plugin 插件中自带的脚本 `analyze_dyncalls.py` 时，出现报错：
+
+```python
+def renameDyncalls(calltype):
+    offset, mask = dynCalls.get(calltype, (0, 0))
+    nullFunc = getTableFunction(offset)
+    nullFunc.setName("nullFuncPtr_" + calltype, SourceType.USER_DEFINED)
+    monitor.setMessage("Renaming " + calltype + " functions")
+    monitor.initialize(mask)
+    for i in range(mask+1):
+        monitor.setProgress(i)
+        func = getTableFunction(offset + i)
+        name = "func_" + calltype + "_%d" % i
+        if func.name.startswith("unnamed_function_"):
+            func.setName(name, SourceType.ANALYSIS)
+        
+        # AttributeError: 'ghidra.program.database.symbol.SymbolManager' object has no attribute 'createSymbol
+        currentProgram.symbolTable.createSymbol(func.entryPoint, name, dynCallNamespace, SourceType.USER_DEFINED)
+```
+
+我所使用的 Ghidra 版本为 `10.1.2`。查询 [文档](https://ghidra.re/ghidra_docs/api/ghidra/program/model/symbol/SymbolTable.html) 发现 `SymbolTable` 中已无对应函数。尝试将其修改为增加标签（Label）的函数，执行成功：
+
+```python
+# currentProgram.symbolTable.createSymbol(func.entryPoint, name, dynCallNamespace, SourceType.USER_DEFINED)
+currentProgram.symbolTable.createLabel(func.entryPoint, name, dynCallNamespace, SourceType.USER_DEFINED)
+```
+<br>
+
+为确认地址修复是否正确，尝试比较一个简单函数及其反编译结果。源代码：
+
+```c
+namespace Platformer.Gameplay
+{
+    public class EnemyDeath : Simulation.Event<EnemyDeath>
+    {
+        public EnemyController enemy;
+        public override void Execute()
+        {
+            enemy._collider.enabled = false;
+            enemy.control.enabled = false;
+            if (enemy._audio && enemy.ouch)
+                enemy._audio.PlayOneShot(enemy.ouch);
+        }
+    }
+}
+```
+反编译结果：
+
+```c
+void Platformer.Gameplay.EnemyDeath$$Execute(int param1,undefined4 param2)
+{
+  int iVar1;
+  undefined4 uVar2;
+  
+  if (cRam002c2799 == '\0') {
+    func_vi_9925(&UnityEngine.Object_TypeInfo);
+    cRam002c2799 = '\x01';
+  }
+  UnityEngine.Behaviour$$set_enabled(*(undefined4 *)(*(int *)(param1 + 0xc) + 0x1c),0,0);
+  UnityEngine.Behaviour$$set_enabled(*(undefined4 *)(*(int *)(param1 + 0xc) + 0x18),0,0);
+  uVar2 = *(undefined4 *)(*(int *)(param1 + 0xc) + 0x20);
+  if (((*(ushort *)(UnityEngine.Object_TypeInfo + 0xba) & 0x400) != 0) &&
+     (*(int *)(UnityEngine.Object_TypeInfo + 0x74) == 0)) {
+    func_vi_9938(UnityEngine.Object_TypeInfo);
+  }
+  iVar1 = UnityEngine.Object$$op_Implicit(uVar2,0);
+  if (iVar1 != 0) {
+    uVar2 = *(undefined4 *)(*(int *)(param1 + 0xc) + 0x10);
+    if (((*(ushort *)(UnityEngine.Object_TypeInfo + 0xba) & 0x400) != 0) &&
+       (*(int *)(UnityEngine.Object_TypeInfo + 0x74) == 0)) {
+      func_vi_9938(UnityEngine.Object_TypeInfo);
+    }
+    iVar1 = UnityEngine.Object$$op_Implicit(uVar2,0);
+    if (iVar1 != 0) {
+      UnityEngine.AudioSource$$PlayOneShot
+                (*(undefined4 *)(*(int *)(param1 + 0xc) + 0x20),
+                 *(undefined4 *)(*(int *)(param1 + 0xc) + 0x10),0);
+    }
+  }
+  return;
+}
+```
+p{white-space:pre-wrap;}虽然看上去有点好乱，但从对 `PlayOneShot` 调用来看修复应该无误。
 
 <br>
 
